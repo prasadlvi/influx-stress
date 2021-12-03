@@ -26,6 +26,7 @@ var (
 	seriesN, gzip                        int
 	batchSize, pointsN, pps              uint64
 	startTimestamp                       int64
+	interval                             int64
 	runtime                              time.Duration
 	tick                                 time.Duration
 	fast, quiet                          bool
@@ -119,7 +120,8 @@ func insertRun(cmd *cobra.Command, args []string) {
 	for i := uint64(0); i < concurrency; i++ {
 
 		startTimestampForThread := startTimestamp - int64((pointsN/concurrency)*10000000*i)
-		fmt.Println("Start timestamp : " + strconv.FormatInt(int64(i), 10) + " = " + time.Unix(0, startTimestampForThread).String() + ", " + strconv.FormatInt(startTimestampForThread, 10))
+		fmt.Printf("Start timestamp : " + strconv.FormatInt(int64(i), 10) + " = " + time.Unix(0, startTimestampForThread).String() + ", " + strconv.FormatInt(startTimestampForThread, 10) + "\n")
+		fmt.Printf("Period between two points in milliseconds: " + strconv.FormatInt(interval, 10) + "\n")
 		go func(startSplit, endSplit int) {
 			tick := time.Tick(tick)
 
@@ -137,7 +139,7 @@ func insertRun(cmd *cobra.Command, args []string) {
 			}
 
 			// Ignore duration from a single call to Write.
-			pointsWritten, _ := stress.Write(pts[startSplit:endSplit], c, cfg, startTimestampForThread)
+			pointsWritten, _ := stress.Write(pts[startSplit:endSplit], c, cfg, startTimestampForThread, interval)
 			atomic.AddUint64(&totalWritten, pointsWritten)
 
 			wg.Done()
@@ -190,6 +192,7 @@ func init() {
 	insertCmd.Flags().BoolVarP(&strict, "strict", "", true, "Strict mode will exit as soon as an error or unexpected status is encountered")
 	insertCmd.Flags().BoolVarP(&tlsSkipVerify, "tls-skip-verify", "", false, "Skip verify in for TLS")
 	insertCmd.Flags().Int64VarP(&startTimestamp, "start-timestamp", "t", time.Now().UnixNano(), "Start timestamp of insert")
+	insertCmd.Flags().Int64VarP(&interval, "interval", "i", 10, "Interval between two points in milliseconds")
 }
 
 func client() write.Client {

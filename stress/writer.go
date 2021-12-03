@@ -41,7 +41,7 @@ type WriteConfig struct {
 // to write data to the target until one of the following conditions is met.
 // 1. We reach that MaxPoints specified in the WriteConfig.
 // 2. We've passed the Deadline specified in the WriteConfig.
-func Write(pts []lineprotocol.Point, c write.Client, cfg WriteConfig, timestamp int64) (uint64, time.Duration) {
+func Write(pts []lineprotocol.Point, c write.Client, cfg WriteConfig, timestamp int64, interval int64) (uint64, time.Duration) {
 	if cfg.Results == nil {
 		panic("Results Channel on WriteConfig cannot be nil")
 	}
@@ -83,7 +83,7 @@ WRITE_BATCHES:
 		for _, pt := range pts {
 			pointCount++
 			pt.SetTime(time.Unix(0, timestamp))
-			timestamp = timestamp - 10000000 // 10 million nanoseconds (every 0.01 second, 100 per second, 360000 per hour, 518 million total points)
+			timestamp = timestamp - interval // 10 million nanoseconds (every 0.01 second, 100 per second, 360000 per hour, 518 million total points)
 			lineprotocol.WritePoint(w, pt)
 
 			//buf := new(bytes.Buffer)
