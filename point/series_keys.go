@@ -1,7 +1,6 @@
 package point
 
 import (
-	"fmt"
 	"math"
 	"sort"
 	"strings"
@@ -53,14 +52,10 @@ func tagCardinalityPartition(numTags int, factors map[int]int) []int {
 }
 
 func generateSeriesKeys(tmplt string, card int) [][]byte {
-	fmtTmplt, numTags := formatTemplate(tmplt)
-	tagCardinalities := tagCardinalityPartition(numTags, primeFactorization(card))
-
 	series := [][]byte{}
 
 	for i := 0; i < card; i++ {
-		mods := sliceMod(i, tagCardinalities)
-		series = append(series, []byte(fmt.Sprintf(fmtTmplt, mods...)))
+		series = append(series, []byte(tmplt))
 	}
 
 	return series

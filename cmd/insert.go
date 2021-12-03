@@ -4,18 +4,18 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"math"
-	"os"
-	"strings"
-	"sync"
-	"sync/atomic"
-	"time"
-
 	"github.com/influxdata/influx-stress/lineprotocol"
 	"github.com/influxdata/influx-stress/point"
 	"github.com/influxdata/influx-stress/stress"
 	"github.com/influxdata/influx-stress/write"
 	"github.com/spf13/cobra"
+	"math"
+	"os"
+	"strconv"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"time"
 )
 
 var (
@@ -25,6 +25,7 @@ var (
 	createCommand, dump                  string
 	seriesN, gzip                        int
 	batchSize, pointsN, pps              uint64
+	startTimestamp                       int64
 	runtime                              time.Duration
 	tick                                 time.Duration
 	fast, quiet                          bool
@@ -57,9 +58,9 @@ func insertRun(cmd *cobra.Command, args []string) {
 			return
 		}
 	}
-	if len(args) == 2 {
-		fieldStr = args[1]
-	}
+	//if len(args) == 3 {
+	fieldStr = args[1]
+	//}
 
 	concurrency := pps / batchSize
 	// PPS takes precedence over batchSize.
@@ -114,8 +115,11 @@ func insertRun(cmd *cobra.Command, args []string) {
 	var totalWritten uint64
 
 	start := time.Now()
+
 	for i := uint64(0); i < concurrency; i++ {
 
+		startTimestampForThread := startTimestamp - int64((pointsN/concurrency)*10000000*i)
+		fmt.Println("Start timestamp : " + strconv.FormatInt(int64(i), 10) + " = " + time.Unix(0, startTimestampForThread).String() + ", " + strconv.FormatInt(startTimestampForThread, 10))
 		go func(startSplit, endSplit int) {
 			tick := time.Tick(tick)
 
@@ -133,7 +137,7 @@ func insertRun(cmd *cobra.Command, args []string) {
 			}
 
 			// Ignore duration from a single call to Write.
-			pointsWritten, _ := stress.Write(pts[startSplit:endSplit], c, cfg)
+			pointsWritten, _ := stress.Write(pts[startSplit:endSplit], c, cfg, startTimestampForThread)
 			atomic.AddUint64(&totalWritten, pointsWritten)
 
 			wg.Done()
@@ -183,8 +187,9 @@ func init() {
 	insertCmd.Flags().BoolVarP(&kapacitorMode, "kapacitor", "k", false, "Use Kapacitor mode, namely do not try to run any queries.")
 	insertCmd.Flags().IntVar(&gzip, "gzip", 0, "If non-zero, gzip write bodies with given compression level. 1=best speed, 9=best compression, -1=gzip default.")
 	insertCmd.Flags().StringVar(&dump, "dump", "", "Dump to given file instead of writing over HTTP")
-	insertCmd.Flags().BoolVarP(&strict, "strict", "", false, "Strict mode will exit as soon as an error or unexpected status is encountered")
+	insertCmd.Flags().BoolVarP(&strict, "strict", "", true, "Strict mode will exit as soon as an error or unexpected status is encountered")
 	insertCmd.Flags().BoolVarP(&tlsSkipVerify, "tls-skip-verify", "", false, "Skip verify in for TLS")
+	insertCmd.Flags().Int64VarP(&startTimestamp, "start-timestamp", "t", time.Now().UnixNano(), "Start timestamp of insert")
 }
 
 func client() write.Client {
