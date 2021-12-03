@@ -119,7 +119,7 @@ func insertRun(cmd *cobra.Command, args []string) {
 
 	for i := uint64(0); i < concurrency; i++ {
 
-		startTimestampForThread := startTimestamp - int64((pointsN/concurrency)*10000000*i)
+		startTimestampForThread := startTimestamp - int64((pointsN/concurrency)*uint64(interval*1000000)*i)
 		fmt.Printf("Start timestamp : " + strconv.FormatInt(int64(i), 10) + " = " + time.Unix(0, startTimestampForThread).String() + ", " + strconv.FormatInt(startTimestampForThread, 10) + "\n")
 		fmt.Printf("Period between two points in milliseconds: " + strconv.FormatInt(interval, 10) + "\n")
 		go func(startSplit, endSplit int) {

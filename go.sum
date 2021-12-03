@@ -1,3 +1,4 @@
+github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/klauspost/compress v0.0.0-20160421081654-14eb9c495119 h1:Bytj46Eo7i9LGkdBGofDEtgvWDfYnuMN8GFLhQ+di70=
 github.com/klauspost/compress v0.0.0-20160421081654-14eb9c495119/go.mod h1:RyIbtBH6LamlWaDj8nUwkbUhJ87Yi3uG0guNDohfE1A=

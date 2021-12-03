@@ -83,7 +83,7 @@ WRITE_BATCHES:
 		for _, pt := range pts {
 			pointCount++
 			pt.SetTime(time.Unix(0, timestamp))
-			timestamp = timestamp - interval // 10 million nanoseconds (every 0.01 second, 100 per second, 360000 per hour, 518 million total points)
+			timestamp = timestamp - interval*1000000 // 10 million nanoseconds (every 0.01 second, 100 per second, 360000 per hour, 518 million total points)
 			lineprotocol.WritePoint(w, pt)
 
 			//buf := new(bytes.Buffer)
