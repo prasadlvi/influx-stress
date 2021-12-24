@@ -3,6 +3,7 @@ package lineprotocol
 import (
 	"io"
 	"strconv"
+	"sync/atomic"
 )
 
 var equalSign = byte('=')
@@ -15,6 +16,7 @@ type Field io.WriterTo
 var (
 	_ Field = &Int{}
 	_ Field = &Float{}
+	_ Field = &String{}
 )
 
 // Int implements the Field interface. Key is the line protocol
@@ -42,10 +44,10 @@ func (i *Int) WriteTo(w io.Writer) (int64, error) {
 
 	// Max int64 fits in 19 base-10 digits,
 	// plus 1 for the leading =, plus 1 for the trailing i required for ints.
-	tmplt := "\"icmp\""
 	buf := make([]byte, 0, 21)
 	buf = append(buf, equalSign)
-	buf = append(buf, tmplt...)
+	buf = strconv.AppendInt(buf, atomic.LoadInt64(&i.Value), 10)
+	buf = append(buf, 'i')
 
 	m, err := w.Write(buf)
 
@@ -78,4 +80,21 @@ func (f *Float) WriteTo(w io.Writer) (int64, error) {
 	m, err := w.Write(buf)
 
 	return int64(n + m), err
+}
+
+type String struct {
+	Key   []byte
+	Value string
+}
+
+func (s *String) WriteTo(w io.Writer) (int64, error) {
+	n, err := w.Write(s.Key)
+	if err != nil {
+		return int64(n), err
+	}
+
+	w.Write([]byte("="))
+	m, err := w.Write([]byte(s.Value))
+
+	return int64(n + 1 + m), err
 }

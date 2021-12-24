@@ -180,7 +180,7 @@ func init() {
 	insertCmd.Flags().IntVarP(&seriesN, "series", "s", 100000, "number of series that will be written")
 	insertCmd.Flags().Uint64VarP(&pointsN, "points", "n", math.MaxUint64, "number of points that will be written")
 	insertCmd.Flags().Uint64VarP(&batchSize, "batch-size", "b", 10000, "number of points in a batch")
-	insertCmd.Flags().Uint64VarP(&pps, "pps", "", 200000, "Points Per Second")
+	insertCmd.Flags().Uint64VarP(&pps, "pps", "", 10000, "Points Per Second")
 	insertCmd.Flags().DurationVarP(&runtime, "runtime", "r", time.Duration(math.MaxInt64), "Total time that the test will run")
 	insertCmd.Flags().DurationVarP(&tick, "tick", "", time.Second, "Amount of time between request")
 	insertCmd.Flags().BoolVarP(&fast, "fast", "f", false, "Run as fast as possible")

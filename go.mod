@@ -3,6 +3,7 @@ module github.com/influxdata/influx-stress
 go 1.13
 
 require (
+	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/inconshreveable/mousetrap v1.0.0
 	github.com/klauspost/compress v0.0.0-20160421081654-14eb9c495119
 	github.com/klauspost/cpuid v0.0.0-20160302075316-09cded8978dc
